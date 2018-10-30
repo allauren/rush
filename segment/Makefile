@@ -7,11 +7,10 @@ SRC =	main.c			\
 		animation.c		\
 		params.c		\
 		set_buffer.c	\
-		draw_buffer.c	\
 
 OBJ =	$(SRC:.c=.o)
 
-FLAGS =	-Wall -Werror -Wextra
+FLAGS =	-Wall -Wextra
 
 all:	$(NAME)
 

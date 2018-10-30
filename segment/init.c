@@ -23,12 +23,8 @@ void	init_buffer(t_buffer *buf, t_env e)
 	buf->lock = 1;
 	buf->p = MILLION / e.frequency;
 	buf->s_nb = e.s_nb;
-	if (!(buf->p_buf = (bool *)calloc(1, sizeof(bool) * MILLION)))
-		segment_error("malloc buf->p_buf");
-	if(!(buf->s_buf = (t_segment *)malloc(sizeof(t_segment) * e.s_nb)))
-		segment_error("malloc buf->s_buf");
 	printf("test\n");
-	memcpy(buf->s_buf, e.s, e.s_nb * sizeof(t_segment));
+	//memcpy(buf->s_buf, e.s, e.s_nb * sizeof(t_segment));
 	buf->animate = (t_animate *)malloc(1 * sizeof(t_animate));
 	buf->animate[0] = &standard_animation;
 }

@@ -51,8 +51,8 @@ typedef struct		s_buffer
 	t_animate		*animate;
 }					t_buffer;
 
-pthread_mutex_t		end_buf = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t		end_change - PTHREAD_COND_INITIALIZER;
+extern pthread_mutex_t		end_buf ;
+extern pthread_cond_t		end_change;
 
 void				segment_error(char *err_msg);
 
@@ -60,6 +60,7 @@ void				init_env(t_env *e, char **argv);
 void				init_stuff(int mode);
 void				init_buffer(t_buffer *buf, t_env e);
 void				engine_start(t_env e);
+void				segment_error2(char *err_msg);
 
 void				*draw_buffer(void *e);
 void				*set_buffer(void *e);
