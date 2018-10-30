@@ -8,5 +8,6 @@ segment :
 	Fonctionnement de la segmentation geree avec des changements de la periode d'entree rapide
 	Variation de la periode possible directement dans le code
 	changements de fonction pour changer d'effet 
+	Objectifs bonus
 	changements d'un son complexe.
 

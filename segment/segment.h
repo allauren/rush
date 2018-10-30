@@ -27,6 +27,7 @@ typedef struct		s_segment
 	int				animation;
 }					t_segment;
 
+void				*key_event(void *buf);
 typedef				void(*t_animate)(t_segment *, long long);
 
 typedef struct		s_env
