@@ -16,6 +16,8 @@
 # define MILLION (double)1000000
 # define FRAMETIME 16666
 
+extern long long framecount;
+
 typedef struct		s_segment
 {
 	double			start;

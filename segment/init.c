@@ -3,23 +3,19 @@
 void	init_env(t_env *e, char **argv)
 {
 	e->frequency = atof(argv[1]);
-	e->mode = atoi(argv[2]);
-	e->s_nb = 1;
+	e->s_nb = atoi(argv[2]);
+	e->mode = atoi(argv[3]);
 	e->s = (t_segment *)malloc(e->s_nb * sizeof(t_segment));
-	e->s[0].start = 0;
-	e->s[0].end = 0.5;
-	e->s[0].speed = 0.0000;
-	e->s[0].acceleration = 1.0000;
-	e->s[0].elongation = 0;
-	e->s[0].animation = 0;
-	e->s[0].state = 1;
-/*	e->s[1].start = 0.5;
-	e->s[1].end = 0.75;
-	e->s[1].speed = 0.0000;
-	e->s[1].acceleration = 1.0000;
-	e->s[1].elongation = 0;
-	e->s[1].animation = 0;
-	e->s[1].state = 1;*/
+	for (int i = 0; i < e->s_nb; i++)
+	{
+		e->s[i].start = (double)i/(double)e->s_nb;
+		e->s[i].end = e->s[i].start + (double)1/(double)(2 * e->s_nb);
+		e->s[i].speed = 0.1;
+		e->s[i].acceleration = 1;
+		e->s[i].elongation = 0;
+		e->s[i].animation = 0;
+		e->s[i].state = 1;
+	}
 }
 
 void	init_buffer(t_buffer *buf, t_env e)
@@ -31,6 +27,7 @@ void	init_buffer(t_buffer *buf, t_env e)
 		segment_error("malloc buf->p_buf");
 	if(!(buf->s_buf = (t_segment *)malloc(sizeof(t_segment) * e.s_nb)))
 		segment_error("malloc buf->s_buf");
+	printf("test\n");
 	memcpy(buf->s_buf, e.s, e.s_nb * sizeof(t_segment));
 	buf->animate = (t_animate *)malloc(1 * sizeof(t_animate));
 	buf->animate[0] = &standard_animation;
