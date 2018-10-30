@@ -1,13 +1,5 @@
 #include "segment.h"
 
-static volatile bool keepRunningg = true;
-
-static void sigintHandlerr(int x)
-{
-	keepRunningg = x;
-	keepRunningg = false;
-}
-
 /*
 void	*draw_buffer(void *buf)
 {
@@ -35,9 +27,8 @@ void	*draw_buffer(void *buf)
 	struct timespec	raw_time;
 	long long		time_elapsed;
 
-	signal(SIGINT, &sigintHandlerr);
 	b = (t_ressale *)buf;
-	while (keepRunningg)
+	while (1)
 	{
 		while (b->buf == 0)
 		{
