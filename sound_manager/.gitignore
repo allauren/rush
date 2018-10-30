@@ -1,0 +1,12 @@
+*.a
+*\.o
+*.so
+
+fft_test
+*.swp
+*.swo
+
+.*.swp
+.*.swo
+cscope.out
+*.out

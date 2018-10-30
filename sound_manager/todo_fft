@@ -1,0 +1,44 @@
+sio_record:
+    -> mettre les usage dan des fonction ET decouper un peu mieux en fonctionalite
+    -> enlever le faite d'ecrire dans un fichier
+    -> mesurer le temps:
+        -> entre 2 appelle du callback
+			==> toute les 1s il y a une serie de environ 50 appel du callback
+        -> max a passer dans le callback de lecture pour que tout se passe bien
+        -> d'execution du callback en soit
+    -> comprendre chaque ligne du fichier
+    -> un peu de lecture de soundio.h
+    -> comprendre un peu mieux le sample-rate:
+		-> est-ce que il sont normaliser et depende d'un layer inferieur
+		-> OU alors a la man
+			==> sample_rate min ==> 8000
+		-> est ce que les valeur sont des moyenne OU est-ce que le sont est juste sampler a sertain moment
+	-> comprendre mieux l'evenement qui declanche l'aeppel du callback:
+		-> appeler quand le buffer est suffiseament vien rempli?
+		-> appeler par une coucher qui a besoin de rendre rapidement la main?
+		-> d'ou viens le buffer underflow?
+	-> comprendre le fonctionnement de la memoir:
+		-> on ne peut lire ou ecrire qu'une seule fois?
+		-> decalage d'adresse du pointeur?
+		-> quelle est la taille max que l'oin peut lire en une seul fois?
+		-> comment sont ranger les different chanel?
+		-> peut on avoir acces a dorite et geuche en meme temps?
+	-> difference overflow VS underflow
+		=> overflow:	latence dans le readcallback
+		=> underflow:	latence dans le writecallback
+         
+
+	-> Est-ce que les appele des callback sont dependant wde la taille de la memoir?
+		-> comment on fait pour donner notre propre zone de memoir
+
+
+
+======> C'est quoi les truc minimum a faire pour avoir un buffer sur lequelle appliquer une fft? 	
+	viloncell min frequence --> 65 hz
+	on a besoin d'un buffer accesible ET que les chanelle soit ranger dans un ordre coherent 
+
+	---> problem: On a une forme de latence de l'example "sio_record.c"
+		il n'est pas present avec sio_microphone mais il faut pouvoir copier les info sans overflow
+
+	--> fonction de descrition du materiele pour avoir les variable qui definisse le fonctionement
+		du materiel, dans le but d'aoir un algo qui s'adapte un minimum au different materiel (ordi, raspberry)
