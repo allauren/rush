@@ -43,7 +43,7 @@ typedef struct		s_env
 
 typedef struct		s_buffer
 {
-	bool			*p_buf;
+	bool			**buf;
 	t_segment		*s_buf;
 	int				p;
 	int				s_nb;
@@ -51,13 +51,8 @@ typedef struct		s_buffer
 	t_animate		*animate;
 }					t_buffer;
 
-typedef struct		s_ale
-{
-	t_buffer		*buf0;
-	t_buffer		*buf1;
-	int				buf;
-}					t_ressale;
-
+pthread_mutex_t		end_buf = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t		end_change - PTHREAD_COND_INITIALIZER;
 
 void				segment_error(char *err_msg);
 

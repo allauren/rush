@@ -8,38 +8,43 @@ static void sigintHandler(int x)
 	keepRunning = false;
 }
 
+void	init_function (t_env e; t_buffer *buf)
+{
+	init_stuff(e.mode); // Init GPIO, SIGINT management and manage ON/OFF static modes
+	init_buffer(buf, e);
+}
 void	engine_start(t_env e)
 {
-	pthread_t	set_buf_thread;
-	pthread_t	draw_buf_thread;
-	pthread_t	key_event_thread;
+	pthread_t	threads[2]; 
+	t_buffer	*segmenter;
+	char	*bufs[2]; 
+	struct timespec	raw_time;
+	long long		time_elapsed;
+	int				period;
+	int				i;
 
-	t_buffer	*set_buf;
-//	t_buffer	*draw_buf;
-	t_buffer	buf1;
-	t_buffer	buf2;
-	t_ressale	bufx;
+	i = 0;
+	pthread_mutex_lock(&end_buf);
 	signal(SIGINT, &sigintHandler);
-	init_stuff(e.mode); // Init GPIO, SIGINT management and manage ON/OFF static modes
-	init_buffer(&buf1, e);
-	init_buffer(&buf2, e);
-//	draw_buf = &buf1;
-	set_buf = &buf2;
-	bufx.buf0 = &buf1;
-	bufx.buf1 = &buf2;
-	bufx.buf = 0;
-	
-	pthread_create(&draw_buf_thread, NULL, draw_buffer, &bufx);
-	pthread_create(&key_event_thread, NULL, key_event, &bufx);
-	while (keepRunning)
+	if (!(segmenter = (bool *)calloc(1, sizeof(t_buffer))))
+		segment_error("malloc error buf");
+	if (!(bufs[0] = (bool *)calloc(1, sizeof(bool) * MILLION)))
+		segment_error("malloc error buf");
+	if (!(bufs[1] = (bool *)calloc(1, sizeof(bool) * MILLION)))
+		segment_error("malloc error buf");
+	init_function(e, segmenter);
+	segmenter->buf = &bufs[i];
+	while (1)
 	{
-		pthread_create(&set_buf_thread, NULL, set_buffer, set_buf);
-		pthread_join(set_buf_thread, NULL);
-		set_buf = (set_buf == &buf1) ? &buf2 : &buf1;
-		bufx.buf = (set_buf == &buf1) ? 1 : 0;
+		i = !i;
+		pthread_cond_signal(&end_change);
+		while (pthread_mutex_trylock(end_buf))
+		{
+
+			clock_gettime(CLOCK_REALTIME, &raw_time);
+			time_elapsed = (long long)(raw_time.tv_sec * MILLION + raw_time.tv_nsec / 1000);
+			digitalWrite(LASER, bufs[i][time_elapsed % period]);
+		}
+		segmenter->buf = &bufs[i];
 	}
-	pthread_join(draw_buf_thread, NULL);
-	digitalWrite(LASER, LOW);
-	printf("Laser turned off, program will exit\n");
-	exit (1);
 }
