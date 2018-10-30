@@ -28,10 +28,6 @@ void	engine_start(t_env e)
 	bufx.buf0 = &buf1;
 	bufx.buf1 = &buf2;
 	bufx.buf = 0;
-	pthread_create(&set_buf_thread, NULL, set_buffer, set_buf);
-	pthread_join(set_buf_thread, NULL);
-	set_buf = (set_buf == &buf1) ? &buf2 : &buf1;
-	pthread_create(&set_buf_thread, NULL, set_buffer, set_buf);
 	pthread_join(set_buf_thread, NULL);
 	pthread_create(&draw_buf_thread, NULL, draw_buffer, &bufx);
 
@@ -39,17 +35,13 @@ void	engine_start(t_env e)
 
 	while (keepRunning)
 	{
-//		pthread_join(draw_buf_thread, NULL);
-//		pthread_create(&draw_buf_thread, NULL, draw_buffer, draw_buf);
 		pthread_create(&set_buf_thread, NULL, set_buffer, set_buf);
 		pthread_join(set_buf_thread, NULL);
-//		set_buf->lock = 0;
-//		draw_buf = set_buf;
 		set_buf = (set_buf == &buf1) ? &buf2 : &buf1;
 		bufx.buf = (set_buf == &buf1) ? 1 : 0;
-//		set_buf->lock = 1;
 	}
 	pthread_join(draw_buf_thread, NULL);
 	digitalWrite(LASER, LOW);
 	printf("Laser turned off, program will exit\n");
+	exit (1);
 }
