@@ -1,10 +1,13 @@
 NAME =	segment
 
-SRC =	main.c		\
-		error.c		\
-		init.c		\
-		engine.c	\
-		animation.c	\
+SRC =	main.c			\
+		error.c			\
+		init.c			\
+		engine.c		\
+		animation.c		\
+		params.c		\
+		set_buffer.c	\
+		draw_buffer.c	\
 
 OBJ =	$(SRC:.c=.o)
 

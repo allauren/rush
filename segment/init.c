@@ -8,7 +8,7 @@ void	init_env(t_env *e, char **argv)
 	e->s = (t_segment *)malloc(e->s_nb * sizeof(t_segment));
 	e->s[0].start = 0;
 	e->s[0].end = 0.5;
-	e->s[0].speed = 0.0001;
+	e->s[0].speed = 0.0000;
 	e->s[0].acceleration = 1.0000;
 	e->s[0].elongation = 0;
 	e->s[0].animation = 0;
