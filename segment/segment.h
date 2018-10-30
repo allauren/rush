@@ -14,6 +14,7 @@
 
 # define LASER 7
 # define MILLION (double)1000000
+# define FRAMETIME 16666
 
 typedef struct		s_segment
 {
