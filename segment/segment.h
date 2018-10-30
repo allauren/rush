@@ -10,6 +10,7 @@
 # include <pthread.h>
 # include <string.h>
 # include <math.h>
+# include <unistd.h>
 
 # define LASER 7
 # define MILLION (double)1000000
