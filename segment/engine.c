@@ -43,12 +43,12 @@ void	engine_start(t_env e)
 	pthread_create(&threads[1], NULL, key_event, segmenter);
 	while (1)
 	{
+		period  = segmenter->p;
 		pthread_mutex_lock(&end_buf);
 		i = !i;
-		period  = segmenter->p;
+		pthread_cond_wait(&end_change, &end_buf);
 		while (!pthread_mutex_trylock(&end_buf))
 		{
-			pthread_cond_signal(&end_change);
 			segment_error2(" caca lalala");
 			clock_gettime(CLOCK_REALTIME, &raw_time);
 			time_elapsed = (long long)(raw_time.tv_sec * MILLION + raw_time.tv_nsec / 1000);
