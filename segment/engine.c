@@ -28,7 +28,6 @@ void	engine_start(t_env e)
 	bufx.buf0 = &buf1;
 	bufx.buf1 = &buf2;
 	bufx.buf = 0;
-	pthread_join(set_buf_thread, NULL);
 	pthread_create(&draw_buf_thread, NULL, draw_buffer, &bufx);
 
 	pthread_create(&key_event_thread, NULL, key_event, &bufx);
