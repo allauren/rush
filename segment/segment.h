@@ -71,5 +71,6 @@ void				*set_buffer(void *e);
 
 void				update_segment(t_buffer *b, long long t);
 void				standard_animation(t_segment *s, long long t); 
+void				test_animation(t_segment *s, long long t);
 
 #endif

@@ -10,10 +10,10 @@ void	init_env(t_env *e, char **argv)
 	{
 		e->s[i].start = (double)i/(double)e->s_nb;
 		e->s[i].end = e->s[i].start + (double)1/(double)(2 * e->s_nb);
-		e->s[i].speed = 0.0;
+		e->s[i].speed = 0.00;
 		e->s[i].acceleration = 1;
 		e->s[i].elongation = 0;
-		e->s[i].animation = 0;
+		e->s[i].animation = 1;
 		e->s[i].state = 1;
 	}
 }
@@ -28,8 +28,9 @@ void	init_buffer(t_buffer *buf, t_env e)
 	if(!(buf->s_buf = (t_segment *)malloc(sizeof(t_segment) * e.s_nb)))
 		segment_error("malloc buf->s_buf");
 	memcpy(buf->s_buf, e.s, e.s_nb * sizeof(t_segment));
-	buf->animate = (t_animate *)malloc(1 * sizeof(t_animate));
+	buf->animate = (t_animate *)malloc(2 * sizeof(t_animate));
 	buf->animate[0] = &standard_animation;
+	buf->animate[1] = &test_animation;
 }
 
 void	init_stuff(int mode)
