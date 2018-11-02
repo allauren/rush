@@ -13,7 +13,7 @@ void	init_env(t_env *e, char **argv)
 		e->s[i].speed = 0.00;
 		e->s[i].acceleration = 1;
 		e->s[i].elongation = 0;
-		e->s[i].animation = 1;
+		e->s[i].animation = 0;
 		e->s[i].state = 1;
 	}
 }
