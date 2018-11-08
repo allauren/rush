@@ -19,6 +19,10 @@ $(NAME):
 		gcc $(FLAGS) -c $(SRC)
 		gcc $(OBJ) -o $(NAME) -lwiringPi -lpthread -lm
 
+noflag: 
+		gcc -c -Wall -Wextra $(SRC)
+		gcc $(OBJ) -o $(NAME) -lwiringPi -lpthread -lm
+
 clean:
 		rm -f $(OBJ)
 
@@ -26,3 +30,5 @@ fclean:	clean
 		rm -f $(NAME)
 
 re:		fclean all
+
+renoflag: fclean noflag

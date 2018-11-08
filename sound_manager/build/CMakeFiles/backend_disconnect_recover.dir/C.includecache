@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+..//soundio/soundio.h
+endian.h
+../soundio/endian.h
+stdbool.h
+-
+
+../soundio/endian.h
+
+/home/pi/Documents/sound_manager/libsoundio/test/backend_disconnect_recover.c
+soundio/soundio.h
+-
+stdio.h
+-
+stdarg.h
+-
+stdlib.h
+-
+string.h
+-
+math.h
+-
+unistd.h
+-
+

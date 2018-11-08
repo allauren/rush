@@ -1,13 +1,16 @@
 
 
-LIB_DIR = -L libsoundio/build -L kissfft -L libsoundio/soundio
-LIB_NAME = -lsoundio -lkissfft -lm
-LIB_HEADER = -I libsoundio -I kissfft -I libsoundio/src
+LIB_DIR = -L libsoundio/build  -L libsoundio/soundio -L hello_fft
+LIB_NAME = -lsoundio  -lm -lgpufft -lrt -ldl
+LIB_HEADER = -I libsoundio  -I libsoundio/src -I hello_fft
 CC = gcc
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror 
 
-SRC = sio_record.c	\
+SRC = 	sio_microphone.c \
 	core_function.c
+
+
+	#sio_record.c	\
 
 NAME = fft_test
 
@@ -15,7 +18,11 @@ NAME = fft_test
 OBJ	= $(SRC:.c=.o)
 
 
-all: $(NAME)
+all: $(hello_fft) $(NAME)
+
+hello_fft:
+	make -C hello_fft
+	
 
 $(NAME): $(OBJ)
 		$(CC) $(CFLAGS)  -o $(NAME) $(OBJ) $(LIB_HEADER)  $(LIB_DIR) $(LIB_NAME) $(FRAMEWORK)

@@ -113,6 +113,20 @@ long print_time_from_begin(char *msg)
 }
 
 
+long print_time_from_last(char *msg)
+{
+	static	struct timespec tend={0,0};
+	static	int64		ttprev = 0;
+	int64				ttnow;
+
+	clock_gettime(CLOCK_MONOTONIC, &tend);
+	ttnow = (int64)BILLION * tend.tv_sec + tend.tv_nsec;
+	printf("%s time diff:%f\n", msg, (double)((ttnow - ttprev) / (double)(BILLION)));
+	ttprev = ttnow;
+	return (0);
+}
+
+
 /*
 	Il faut avoir un buffer d'un chanel (droite ou gauche).
 	Il faut que ce buffer soit au format kiss_fft.

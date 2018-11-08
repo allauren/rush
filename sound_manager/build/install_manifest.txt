@@ -1,0 +1,10 @@
+/usr/local/lib/libsoundio.so.1.1.0
+/usr/local/lib/libsoundio.so.1
+/usr/local/lib/libsoundio.so
+/usr/local/lib/libsoundio.a
+/usr/local/include/soundio/soundio.h
+/usr/local/include/soundio/endian.h
+/usr/local/bin/sio_sine
+/usr/local/bin/sio_list_devices
+/usr/local/bin/sio_microphone
+/usr/local/bin/sio_record

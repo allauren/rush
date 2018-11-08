@@ -7,34 +7,35 @@
 
 #include <soundio/soundio.h>
 
+#include <unistd.h>
 #include <stdio.h>
+#include <time.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <time.h>
-
-#include "sound_manager.h"
-
+#include "mailbox.h"
+#include "gpu_fft.h"
 
 struct SoundIoRingBuffer *ring_buffer = NULL;
 
 static enum SoundIoFormat prioritized_formats[] = {
     SoundIoFormatFloat32NE,
     SoundIoFormatFloat32FE,
+    SoundIoFormatS16NE,
+    SoundIoFormatS16FE,
+    SoundIoFormatS16NE,
+	SoundIoFormatS16LE,
     SoundIoFormatS32NE,
     SoundIoFormatS32FE,
     SoundIoFormatS24NE,
     SoundIoFormatS24FE,
-    SoundIoFormatS16NE,
-    SoundIoFormatS16FE,
     SoundIoFormatFloat64NE,
     SoundIoFormatFloat64FE,
     SoundIoFormatU32NE,
     SoundIoFormatU32FE,
     SoundIoFormatU24NE,
     SoundIoFormatU24FE,
-    SoundIoFormatU16NE,
     SoundIoFormatU16FE,
     SoundIoFormatS8,
     SoundIoFormatU8,
@@ -42,58 +43,15 @@ static enum SoundIoFormat prioritized_formats[] = {
 };
 
 static int prioritized_sample_rates[] = {
-	8000,
-	16000,
-	32000,
-	40000,
-	48000,
-	6000,
-	16000,
-	6000,
-	96000,
-	12000,
-	24000,
-	0,
+    48000,
+    16000,
+    96000,
+	5644800,
+    96000,
+    44100,
+    24000,
+    0,
 };
-
-void	describe_instream(struct SoundIoInStream *instream)
-{
-	int	samp_min = instream->device->sample_rates->min;
-	int	samp_max = instream->device->sample_rates->max;
-	int	samp_cur = instream->sample_rate;
-
-    int bytes_per_frame;
-    int bytes_per_sample;
-	
-	printf("nbr_chanel:%d\n", instream->layout.channel_count);
-	printf("sample_rate-> %d\n", samp_cur);
-//	printf("latency->	min:%d	max:%d		actual:%d\n", instream->devices->software_latency_min, instream->software_latency_max, instream->software_latency_current);
-	// latency
-	// sample_rate
-	// chanel number & ordona
-//	instream->latency
-}
-
-long print_time_from_begin(char *msg)
-{
-	static	int		first = 1;
-	static	struct timespec tstart={0,0}, tend={0,0};
-	static	int64		ttstart = 0;
-	int64			ttend;
-
-	if (first)
-	{
-		first = 0;
-		clock_gettime(CLOCK_MONOTONIC, &tstart);
-		ttstart = (int64)BILLION * tstart.tv_sec +  tstart.tv_nsec;
-	}
-	clock_gettime(CLOCK_MONOTONIC, &tend);
-	ttend = (int64)BILLION * tend.tv_sec + tend.tv_nsec;
-//	printf("end:%lld	start:%lld	diff:%lld\n", ttend, ttstart, diff);	
-//	printf("addr_end:%zu	addr_start:%zu\n", (int64)&ttend, (int64)&ttstart);
-	printf("%s time diff:%f\n", msg, (double)((ttend - ttstart) / (double)(BILLION)));
-	return (0);
-}
 
 
 __attribute__ ((cold))
@@ -112,10 +70,138 @@ static int min_int(int a, int b) {
     return (a < b) ? a : b;
 }
 
+#define LOG2_N 12
+#define BUFFER_SIZE (1 << LOG2_N)
+
+#define RAY_NB 32
+#define FREQ_ID_MIN 1
+#define FREQ_ID_MAX (BUFFER_SIZE >> 2)
+
+//float	buff_in[2][BUFFER_SIZE][2];
+//float	buff_out[BUFFER_SIZE][2];
+//float	*buffer;
+typedef	struct GPU_FFT * gfft;
+int	buff_id;
+int	buff_index;
+int	has_change;
+struct GPU_FFT *fft_1; // execute 169
+struct GPU_FFT *fft_2; // execute 169
+gfft tab_fft[2];
+float	freq_amp[BUFFER_SIZE];
+int mb1;	
+int mb2;	
+
+void	buff_init()
+{
+	buff_id = 0;
+	buff_index = 0;
+	has_change = 0;
+//	memset(buff_in, 0, sizeof(buff_in));
+	
+	mb1 = mbox_open();	
+	mb2 = mbox_open();	
+
+	int ret1 = gpu_fft_prepare(mb1, LOG2_N, GPU_FFT_FWD, 1, &fft_1); // call once
+	int ret2 = gpu_fft_prepare(mb2, LOG2_N, GPU_FFT_FWD, 1, &fft_2); // call once
+
+	tab_fft[0] = fft_1;
+	tab_fft[1] = fft_2;
+//	for (int j = 0; j < 2; j++)
+//	{
+//		for (int i = 0; i < BUFFER_SIZE; i++)
+//		{	
+//       			 tab_fft[j]->in[i].re = 0;
+//       			 tab_fft[j]->in[i].im = 0;
+//		}
+//	}
+
+}
+
+//void qsort(void *base, size_t nmemb, size_t size,
+//                  int (*compar)(const void *, const void *));
+
+//int		bigest_compare()
+//{
+//	return (0);
+//}
+
+
+void	sort_bigest(float val, int index, float bigest[RAY_NB][2])
+{
+	
+}
+
+void	fft_analysis()
+{
+		static	int dirty_count = 0;	
+		float	re, im, amp;
+		float	bigest[RAY_NB + 1][2]; // freq, value
+		float	tmp[2];
+		int		buff_prev = !buff_id;
+
+		gpu_fft_execute(tab_fft[buff_prev]);
+		memset(bigest, 0, sizeof(bigest));
+
+//		print_time_from_last("");
+// ** FOR ALL FREQ **
+		for (int i = FREQ_ID_MIN; i < FREQ_ID_MAX; i++)
+		{
+			re = tab_fft[buff_prev]->out[i].re;
+			im = tab_fft[buff_prev]->out[i].im;
+			amp =  sqrtf(re * re + im * im);
+// ** SORT BY AMP **
+			if (amp > bigest[0][1])
+			{
+				bigest[0][0] = i;
+				bigest[0][1] = amp;
+				for (int j = 0; j < RAY_NB - 1; j++) // alternative ==> dichotomie pck tableau trier
+				{
+						if (amp > bigest[j + 1][1])
+						{
+							// swap: j <-> j + 1
+							memmove(&(tmp), &(bigest[j + 1][0]), sizeof(float) * 2);
+							memmove(&(bigest[j + 1][0]), &(bigest[j][0]), sizeof(float) * 2);
+							memmove(&(bigest[j][0]), &(tmp), sizeof(float) * 2);
+						}
+						else
+							break;
+				}
+			}
+		}
+// ** SORT BY FREQ **
+		for (int i = 0; i < RAY_NB; i++)
+		{
+			for (int j = 0; j < RAY_NB - 1; j++)
+			{
+				if (bigest[j][0] > bigest[j + 1][0])
+				{
+					// swap: j <-> j + 1
+					memmove(&(tmp), &(bigest[j + 1][0]), sizeof(float) * 2);
+					memmove(&(bigest[j + 1][0]), &(bigest[j][0]), sizeof(float) * 2);
+					memmove(&(bigest[j][0]), &(tmp), sizeof(float) * 2);
+				}
+			}
+		}
+//		print_time_from_last("====== **********************************>>");
+
+// ** PRINT SORTED FREQ **
+	
+//		printf("\n==============================  %d ============================= \t", dirty_count);
+////		print_time_from_last("");
+//		print_time_from_begin("");
+//		printf("\n\n");
+//		for (int i = 1; i < RAY_NB; i++)
+//		{
+//			printf("frea[%d]:%f\n", (int)bigest[i][0], bigest[i][1]);
+//		}
+//		gpu_fft_release(tab_fft[buff_prev]); // Videocore memory lost if not freed !
+//		gpu_fft_prepare(mb1, LOG2_N, GPU_FFT_FWD, 1, &(tab_fft[buff_prev]));
+		dirty_count++;
+}
+
 static void read_callback(struct SoundIoInStream *instream, int frame_count_min, int frame_count_max) {
     struct SoundIoChannelArea *areas;
     int err;
-
     char *write_ptr = soundio_ring_buffer_write_ptr(ring_buffer);
     int free_bytes = soundio_ring_buffer_free_count(ring_buffer);
     int free_count = free_bytes / instream->bytes_per_frame;
@@ -126,7 +212,6 @@ static void read_callback(struct SoundIoInStream *instream, int frame_count_min,
     int write_frames = min_int(free_count, frame_count_max);
     int frames_left = write_frames;
 
-print_time_from_begin("read_callback --> ");
     for (;;) {
         int frame_count = frames_left;
 
@@ -142,9 +227,38 @@ print_time_from_begin("read_callback --> ");
             memset(write_ptr, 0, frame_count * instream->bytes_per_frame);
             fprintf(stderr, "Dropped %d frames due to internal overflow\n", frame_count);
         } else {
+
+// 16 valeur * 64 = 1024
+//int v1;
+//double f1, f2;
+//printf("frame:%d	chan:%d\n", frame_count, instream->layout.channel_count);
+//printf("===>%d\n", instream->bytes_per_sample);
+//int val = 0;
+
+//printf("!0:%d\n", (!0));
+//printf("!1:%d\n", (!1));
+//printf("!(!0):%d\n", (!(!0)));
+//printf("sizeof(gpucomplex:):%zu\n", sizeof(struct GPU_FFT_COMPLEX));
+float	tmp = 0;
             for (int frame = 0; frame < frame_count; frame += 1) {
+		if (buff_index >= BUFFER_SIZE)
+		{
+			buff_id = !buff_id;
+	//		buff_id = 0;
+			buff_index = 0;
+			has_change = 1;
+		}
                 for (int ch = 0; ch < instream->layout.channel_count; ch += 1) {
-                    memcpy(write_ptr, areas[ch].ptr, instream->bytes_per_sample);
+                    	memcpy(&tmp, areas[ch].ptr, instream->bytes_per_sample);
+				//	printf("ch:%d\n", ch);
+			if (ch == 0)
+			{
+       				 tab_fft[buff_id]->in[buff_index++].re = tmp;
+       				 tab_fft[buff_id]->in[buff_index++].im = 0;
+       		//	 printf("ch[%d]val:%f\n", ch, tmp);
+            }
+			//	;buff_in[buff_id][buff_index++][0] = *((float*)(&tmp));
+                    	memcpy(write_ptr, &tmp, instream->bytes_per_sample);	
                     areas[ch].ptr += areas[ch].step;
                     write_ptr += instream->bytes_per_sample;
                 }
@@ -158,9 +272,13 @@ print_time_from_begin("read_callback --> ");
         if (frames_left <= 0)
             break;
     }
-
     int advance_bytes = write_frames * instream->bytes_per_frame;
     soundio_ring_buffer_advance_write_ptr(ring_buffer, advance_bytes);
+	if (has_change)
+	{
+		has_change = 0;
+		fft_analysis();
+	}
 }
 
 static void write_callback(struct SoundIoOutStream *outstream, int frame_count_min, int frame_count_max) {
@@ -168,8 +286,6 @@ static void write_callback(struct SoundIoOutStream *outstream, int frame_count_m
     int frames_left;
     int frame_count;
     int err;
-
-//return;
 
     char *read_ptr = soundio_ring_buffer_read_ptr(ring_buffer);
     int fill_bytes = soundio_ring_buffer_fill_count(ring_buffer);
@@ -200,6 +316,8 @@ static void write_callback(struct SoundIoOutStream *outstream, int frame_count_m
 
     int read_count = min_int(frame_count_max, fill_count);
     frames_left = read_count;
+    soundio_ring_buffer_advance_read_ptr(ring_buffer, read_count * outstream->bytes_per_frame);
+	return ;
 
     while (frames_left > 0) {
         int frame_count = frames_left;
@@ -223,8 +341,8 @@ static void write_callback(struct SoundIoOutStream *outstream, int frame_count_m
 
         frames_left -= frame_count;
     }
-
     soundio_ring_buffer_advance_read_ptr(ring_buffer, read_count * outstream->bytes_per_frame);
+
 }
 
 static void underflow_callback(struct SoundIoOutStream *outstream) {
@@ -232,6 +350,8 @@ static void underflow_callback(struct SoundIoOutStream *outstream) {
     fprintf(stderr, "underflow %d\n", ++count);
 }
 
+
+/*
 static int usage(char *exe) {
     fprintf(stderr, "Usage: %s [options]\n"
             "Options:\n"
@@ -243,7 +363,7 @@ static int usage(char *exe) {
             "  [--latency seconds]\n"
             , exe);
     return 1;
-}
+}*/
 
 int main(int argc, char **argv) {
     char *exe = argv[0];
@@ -254,7 +374,7 @@ int main(int argc, char **argv) {
     bool out_raw = false;
 
     double microphone_latency = 0.04; // seconds
-
+/*
     for (int i = 1; i < argc; i += 1) {
         char *arg = argv[i];
         if (arg[0] == '-' && arg[1] == '-') {
@@ -270,7 +390,7 @@ int main(int argc, char **argv) {
                 } else if (strcmp("alsa", argv[i]) == 0) {
                     backend = SoundIoBackendAlsa;
                 } else if (strcmp("pulseaudio", argv[i]) == 0) {
-                    backend = SoundIoBackendPulseAudio;
+					backend = SoundIoBackendPulseAudio;
                 } else if (strcmp("jack", argv[i]) == 0) {
                     backend = SoundIoBackendJack;
                 } else if (strcmp("coreaudio", argv[i]) == 0) {
@@ -294,9 +414,21 @@ int main(int argc, char **argv) {
             return usage(exe);
         }
     }
+*/
+
+//XXX
+backend = SoundIoBackendPulseAudio;
+//XXX
+
     struct SoundIo *soundio = soundio_create();
     if (!soundio)
         panic("out of memory");
+
+
+//TEST
+	printf("backend count %d\n", soundio_backend_count(soundio));
+//backend = SoundIoBackendPulseAudio;
+//TEST
 
     int err = (backend == SoundIoBackendNone) ?
         soundio_connect(soundio) : soundio_connect_backend(soundio, backend);
@@ -374,7 +506,6 @@ int main(int argc, char **argv) {
             break;
         }
     }
-printf("sample_rate:%d\n", *sample_rate);
     if (!*sample_rate)
         panic("incompatible sample rates");
 
@@ -396,7 +527,7 @@ printf("sample_rate:%d\n", *sample_rate);
     instream->sample_rate = *sample_rate;
     instream->layout = *layout;
     instream->software_latency = microphone_latency;
-    instream->read_callback = read_callback;	//<--- readcollback
+    instream->read_callback = read_callback;
 
     if ((err = soundio_instream_open(instream))) {
         fprintf(stderr, "unable to open input stream: %s", soundio_strerror(err));
@@ -412,6 +543,7 @@ printf("sample_rate:%d\n", *sample_rate);
     outstream->software_latency = microphone_latency;
     outstream->write_callback = write_callback;
     outstream->underflow_callback = underflow_callback;
+	outstream->software_latency = 0.04;
 
     if ((err = soundio_outstream_open(outstream))) {
         fprintf(stderr, "unable to open output stream: %s", soundio_strerror(err));
@@ -433,10 +565,15 @@ printf("sample_rate:%d\n", *sample_rate);
     if ((err = soundio_outstream_start(outstream)))
         panic("unable to start output device: %s", soundio_strerror(err));
 
-describe_instream(instream);
+buff_init();
+//describe_instream(instream);
     for (;;)
-        soundio_wait_events(soundio);
+	{
+        	soundio_wait_events(soundio);
+	}
 
+    gpu_fft_release(fft_1); // Videocore memory lost if not freed !
+    gpu_fft_release(fft_2); // Videocore memory lost if not freed !
     soundio_outstream_destroy(outstream);
     soundio_instream_destroy(instream);
     soundio_device_unref(in_device);
@@ -444,3 +581,14 @@ describe_instream(instream);
     soundio_destroy(soundio);
     return 0;
 }
+
+//	if (frame < 4)
+//{
+//		v1 = *(short*)(write_ptr);
+//		v2 = *(short*)(write_ptr + 2);
+//		f1 = v1 / 32768.0;
+//		f2 = v2 / 32768.0;
+////		printf("ch[%d]{%d,%d}\n", ch, v1, v2);
+//		printf("ch[%d]{%f, %f}\n", ch, f1, f2);
+//}
+

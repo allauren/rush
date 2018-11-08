@@ -34,13 +34,13 @@ void	*draw_buffer(void *buf)
 		{
 			clock_gettime(CLOCK_REALTIME, &raw_time);
 			time_elapsed = (long long)(raw_time.tv_sec * MILLION + raw_time.tv_nsec / 1000);
-			digitalWrite(LASER, b->buf0->p_buf[time_elapsed % b->buf0->p]);
+			digitalWrite(LASER, b->buf0->p_buf[time_elapsed % *(b->buf0->p)]);
 		}
 		while (b->buf == 1)
 		{
 			clock_gettime(CLOCK_REALTIME, &raw_time);
 			time_elapsed = (long long)(raw_time.tv_sec * MILLION + raw_time.tv_nsec / 1000);
-			digitalWrite(LASER, b->buf1->p_buf[time_elapsed % b->buf1->p]);
+			digitalWrite(LASER, b->buf1->p_buf[time_elapsed % *(b->buf1->p)]);
 		}
 
 	}

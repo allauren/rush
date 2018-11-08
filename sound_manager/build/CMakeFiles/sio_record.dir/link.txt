@@ -1,0 +1,1 @@
+/usr/bin/cc  -g -Werror -pedantic   CMakeFiles/sio_record.dir/example/sio_record.c.o  -o sio_record -Wl,-rpath,/home/pi/Documents/sound_manager/libsoundio/build: -rdynamic libsoundio.so.1.1.0 -lpulse -lpthread 

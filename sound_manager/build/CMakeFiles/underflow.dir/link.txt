@@ -1,0 +1,1 @@
+/usr/bin/cc  -g -Werror -pedantic   CMakeFiles/underflow.dir/test/underflow.c.o  -o underflow -Wl,-rpath,/home/pi/Documents/sound_manager/libsoundio/build -rdynamic libsoundio.so.1.1.0 -lm -lpulse -lpthread 

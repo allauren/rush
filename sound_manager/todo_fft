@@ -42,3 +42,13 @@ sio_record:
 
 	--> fonction de descrition du materiele pour avoir les variable qui definisse le fonctionement
 		du materiel, dans le but d'aoir un algo qui s'adapte un minimum au different materiel (ordi, raspberry)
+
+====================
+=====31/10/2018=====
+====================
+compilation de la lib hello_fft du gpu pour integrer facilement les fonction au sound manager
+integration des fonction d'initialisation + lancement de LA FFT
+Probleme de latence.
+	Solution simple: On a du passer de: 0.04 --> 0.06. Ce n'est pas l'echantillinage, ce n'est pas vraiment la taille de la fft
+	Solution plus elaborer: On gerer le processus avec des thread
+

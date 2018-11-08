@@ -1,0 +1,1 @@
+/usr/bin/cc  -g -Werror -pedantic   CMakeFiles/overflow.dir/test/overflow.c.o  -o overflow -Wl,-rpath,/home/pi/Documents/sound_manager/libsoundio/build -rdynamic libsoundio.so.1.1.0 -lpulse -lpthread 

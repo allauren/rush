@@ -16,6 +16,7 @@
 struct SoundIoRingBuffer *ring_buffer = NULL;
 
 static enum SoundIoFormat prioritized_formats[] = {
+SoundIoFormatS16LE,
     SoundIoFormatFloat32NE,
     SoundIoFormatFloat32FE,
     SoundIoFormatS32NE,

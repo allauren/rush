@@ -25,21 +25,20 @@ struct RecordContext {
 };
 
 static enum SoundIoFormat prioritized_formats[] = {
+    SoundIoFormatU16NE,
+    SoundIoFormatS16FE,
     SoundIoFormatFloat32NE,
     SoundIoFormatFloat32FE,
     SoundIoFormatS32NE,
     SoundIoFormatS32FE,
     SoundIoFormatS24NE,
     SoundIoFormatS24FE,
-    SoundIoFormatS16NE,
-    SoundIoFormatS16FE,
     SoundIoFormatFloat64NE,
     SoundIoFormatFloat64FE,
     SoundIoFormatU32NE,
     SoundIoFormatU32FE,
     SoundIoFormatU24NE,
     SoundIoFormatU24FE,
-    SoundIoFormatU16NE,
     SoundIoFormatU16FE,
     SoundIoFormatS8,
     SoundIoFormatU8,
@@ -47,7 +46,6 @@ static enum SoundIoFormat prioritized_formats[] = {
 };
 
 static int prioritized_sample_rates[] = {
-	8000,
 	48000,
 	44100,
 	96000,
@@ -99,7 +97,7 @@ static void read_callback(struct SoundIoInStream *instream, int frame_count_min,
             for (int frame = 0; frame < frame_count; frame += 1) {
                 for (int ch = 0; ch < instream->layout.channel_count; ch += 1) {
                     memcpy(write_ptr, areas[ch].ptr, instream->bytes_per_sample);
-//printf("bytes_per_sample:%d\n", instream->bytes_per_sample);
+printf("bytes_per_sample:%d\n", instream->bytes_per_sample);
                     areas[ch].ptr += areas[ch].step;
                     write_ptr += instream->bytes_per_sample;
                 }
@@ -283,7 +281,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-describe_instream(instream);
+//describe_instream(instream);
     // Note: in this example, if you send SIGINT (by pressing Ctrl+C for example)
     // you will lose up to 1 second of recorded audio data. In non-example code,
     // consider a better shutdown strategy.

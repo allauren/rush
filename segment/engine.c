@@ -8,8 +8,10 @@ static void sigintHandler(int x)
 	keepRunning = false;
 }
 
-void	engine_start(t_env e)
+void		*engine_start(void *env)
 {
+	t_env	*e;
+	e = (t_env *)env;
 	pthread_t	set_buf_thread;
 	pthread_t	draw_buf_thread;
 	pthread_t	key_event_thread;
@@ -20,7 +22,7 @@ void	engine_start(t_env e)
 	t_buffer	buf2;
 	t_ressale	bufx;
 	signal(SIGINT, &sigintHandler);
-	init_stuff(e.mode); // Init GPIO, SIGINT management and manage ON/OFF static modes
+	init_stuff(e->mode); // Init GPIO, SIGINT management and manage ON/OFF static modes
 	init_buffer(&buf1, e);
 	init_buffer(&buf2, e);
 //	draw_buf = &buf1;
@@ -29,7 +31,6 @@ void	engine_start(t_env e)
 	bufx.buf1 = &buf2;
 	bufx.buf = 0;
 	pthread_create(&draw_buf_thread, NULL, draw_buffer, &bufx);
-
 	pthread_create(&key_event_thread, NULL, key_event, &bufx);
 
 	while (keepRunning)
@@ -43,4 +44,5 @@ void	engine_start(t_env e)
 	digitalWrite(LASER, LOW);
 	printf("Laser turned off, program will exit\n");
 	exit (1);
+	return (env);
 }

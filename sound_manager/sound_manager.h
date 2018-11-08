@@ -4,7 +4,6 @@
 #include <time.h>
 #include <stdio.h>
 #include "libsoundio/soundio/soundio.h"
-#include "kiss_fft.h"
 typedef	long	long	int	int64;
 #define BILLION 1000000000
 
